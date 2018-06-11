@@ -9,7 +9,6 @@ I used a physics parser as an example. The parser accepts values for mass and ve
 
     #The test message you wish to process.
     message = "I have two variables: -mass: 12 --vel= 18"
-    message = "-mass 12 -h"
 
     #Create a parser object. "True" if you wish to suppress the help message from being displayed. 
     physics = comparse(True)
