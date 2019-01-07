@@ -6,24 +6,26 @@ query.add_argument("log_attachments", "str", "Tuby", "Logs attachments. DEFAULT 
 query.add_argument("log_author", "str", "False", "Logs author of message. DEFAULT ARGUMENT(S): log_author=False")
 query.add_argument("exclude_content", "str", "None", "Exclude content from log. DEFAULT ARGUMENT(S): exclude_content='None'")
 
-'''
 #FIRST PROCESS
 message = "log_channel --h"
-try:
-    file_name = query.parse(message)
-    print(file_name)
-except: pass
-'''
+file_name = query.parse(message)
+try: print(file_name['exclude_content'][0])
+except: print(query.parse("--help"))
+
 #SECOND PROCESS
 message = "log_channel=example.txt, content_filter=posted, log_attachments=True, log_author=True, exclude_content='apple, pear, orange'"
-try:
-    file_name = query.parse(message)
-    print(file_name)
-except: pass
+file_name = query.parse(message)
+try: print(file_name['log_channel'])
+except: print(query.parse("--help"))
 
 #THIRD PROCESS
-try:
-    message = "log_channel, exclude_content='apple, pear'"
-    file_name = query.parse(message)
-    print(file_name)
-except: pass
+message = "log_channel, exclude_content='apple, pear'"
+file_name = query.parse(message)
+try: print(file_name['exclude_content'])
+except: print(query.parse("--help"))
+
+#FOURTH PROCESS
+message = "i made a booboo"
+file_name = query.parse(message)
+try: print(file_name['mistaken_content'][0])
+except: print(query.parse("--help"))
