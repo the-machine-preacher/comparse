@@ -119,6 +119,7 @@ class comparse(object):
     def show_help(self):
         show_help = "" #Text variable to be returned.
         '''
+        #Optional print statements which could be used:
         print("\nCommand parsing for this program was done using COMPARSE: a flexible command-line parsing module. Designed to extract ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables.")
         print("\n usage:\n")
         for attribute, help_txt in zip(self.attributes, self.help_txts):
