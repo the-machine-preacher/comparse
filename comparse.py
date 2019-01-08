@@ -90,6 +90,10 @@ class comparse(object):
                     for element in options[attribute]: 
                         if(element != ''): self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
                         else: self.data[attribute].append(float(default))
+                if (var_type == "bool"):
+                    for element in options[attribute]: 
+                        if(element != ''): self.data[attribute].append(bool(element))   #Updates if "attribute" exists, else adds "attribute".
+                        else: self.data[attribute].append(bool(default))
         except:
             for attribute, var_type, default in zip(self.attributes, self.var_types, self.defaults):
                 #Searches for arguments that are actually IN the message.
@@ -102,6 +106,8 @@ class comparse(object):
                             for item in [x.strip() for x in element.split(',')]: self.data[attribute].append(str(item))   
                     if (var_type == "float"):
                         for element in options[attribute]: self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
+                    if (var_type == "bool"):
+                        for element in options[attribute]: self.data[attribute].append(bool(element))   #Updates if "attribute" exists, else adds "attribute".
                 #Adds default values to either attributes that are not in the message or if their values are not specified in the message.
                 except:
                     if (var_type == "int"):
@@ -110,6 +116,8 @@ class comparse(object):
                         for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))   #Initially strips white-spaces and splits the string by commas. Updates if "attribute" exists, else adds "attribute".
                     if (var_type == "float"):
                         self.data[attribute].append(float(default))   #Updates if "attribute" exists, else adds "attribute".
+                    if (var_type == "bool"):
+                        self.data[attribute].append(bool(default))   #Updates if "attribute" exists, else adds "attribute".
 
         #This filters out empty strings from the list before returning it. 
         for attribute in self.attributes: self.data[attribute] = list(filter(None, self.data[attribute]))
@@ -122,9 +130,10 @@ class comparse(object):
         #Optional print statements which could be used:
         print("\nCommand parsing for this program was done using COMPARSE: a flexible command-line parsing module. Designed to extract ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables.")
         print("\n usage:\n")
-        for attribute, help_txt in zip(self.attributes, self.help_txts):
+        for attribute, help_txt, var_type in zip(self.attributes, self.help_txts, self.var_types):
             print(attribute)
             print("    "+help_txt)
+            print("    VARIABLE TYPE: "+var_type)
             print("    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n")
         print("    [if the value for the variable is not specified, then its specified default value is used]")
         print("\n optional arguments:")
@@ -133,9 +142,10 @@ class comparse(object):
         #Collate help text into a neat variable to be returned by the method.
         show_help += "\nCommand parsing for this program was done using COMPARSE: a flexible commandline parsing module. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables."
         show_help += "\n\n usage:\n"
-        for attribute, help_txt in zip(self.attributes, self.help_txts):
+        for attribute, help_txt, var_type in zip(self.attributes, self.help_txts, self.var_types):
             show_help += "\n"+attribute
             show_help += "\n    "+help_txt+"\n"
+            show_help += "    VARIABLE TYPE: "+var_type+"\n"
             show_help += "    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n"
         show_help += "\n    [if the value for the variable is not specified, then its specified default value is used]"
         show_help += "\n\n optional arguments:"
