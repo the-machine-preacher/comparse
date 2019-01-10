@@ -77,7 +77,7 @@ class comparse(object):
             for attribute, var_type, default in zip(self.attributes, self.var_types, self.defaults):
                 if (var_type == "int"):
                     for element in options[attribute]: 
-                        if(element != ''): self.data[attribute].append(int(element))   #Updates if "attribute" exists, else adds "attribute".
+                        if element: self.data[attribute].append(int(element))   #Updates if "attribute" exists, else adds "attribute".
                         else: self.data[attribute].append(int(default))
                 if (var_type == "str"):
                     #Initially strips white-spaces and splits the string by commas. Appends the default value if none are specified. This is a rigorous algorithm which appends default values even if values have been partially specified by the user.
@@ -85,14 +85,16 @@ class comparse(object):
                         if element: 
                             for item in [x.strip() for x in element.split(',')]: self.data[attribute].append(str(item))   
                         else: 
-                            for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))   
+                            if default:
+                                for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))  
+                            else: self.data[attribute].append(str(default))  
                 if (var_type == "float"):
                     for element in options[attribute]: 
-                        if(element != ''): self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
+                        if element: self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
                         else: self.data[attribute].append(float(default))
                 if (var_type == "bool"):
                     for element in options[attribute]: 
-                        if(element != ''): self.data[attribute].append(bool(element))   #Updates if "attribute" exists, else adds "attribute".
+                        if element: self.data[attribute].append(bool(element))   #Updates if "attribute" exists, else adds "attribute".
                         else: self.data[attribute].append(bool(default))
         except:
             for attribute, var_type, default in zip(self.attributes, self.var_types, self.defaults):
@@ -113,7 +115,9 @@ class comparse(object):
                     if (var_type == "int"):
                         self.data[attribute].append(int(default))   #Updates if "attribute" exists, else adds "attribute".
                     if (var_type == "str"):
-                        for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))   #Initially strips white-spaces and splits the string by commas. Updates if "attribute" exists, else adds "attribute".
+                        if default:
+                            for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))   #Initially strips white-spaces and splits the string by commas. Updates if "attribute" exists, else adds "attribute".
+                        else: self.data[attribute].append(str(default))
                     if (var_type == "float"):
                         self.data[attribute].append(float(default))   #Updates if "attribute" exists, else adds "attribute".
                     if (var_type == "bool"):

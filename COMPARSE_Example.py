@@ -1,10 +1,10 @@
 from comparse import comparse
 query = comparse(False)
 query.add_argument("log_channel", "str", "logs.txt", "Logs the channel in specified file. DEFAULT ARGUMENT(S): log_channel='logs.txt'")
-query.add_argument("content_filter", "str", "None", "Filter log by content. DEFAULT ARGUMENT(S): content_filter='None'")
+query.add_argument("content_filter", "str", None, "Filter log by content. DEFAULT ARGUMENT(S): content_filter=None")
 query.add_argument("log_attachments", "bool", True, "Logs attachments. DEFAULT ARGUMENT(S): log_attachments=True")
 query.add_argument("log_author", "bool", False, "Logs author of message. DEFAULT ARGUMENT(S): log_author=False")
-query.add_argument("exclude_content", "str", "None", "Exclude content from log. DEFAULT ARGUMENT(S): exclude_content='None'")
+query.add_argument("exclude_content", "str", None, "Exclude content from log. DEFAULT ARGUMENT(S): exclude_content=None")
 
 #FIRST EXAMPLE
 message = "log_channel --h"
