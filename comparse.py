@@ -124,7 +124,7 @@ class comparse(object):
                         self.data[attribute].append(bool(default))   #Updates if "attribute" exists, else adds "attribute".
 
         #This filters out empty strings from the list before returning it. 
-        for attribute in self.attributes: self.data[attribute] = list(filter(None, self.data[attribute]))
+        for attribute in self.attributes: self.data[attribute] = list(filter(None.__ne__, self.data[attribute]))
         return self.data
     
     #This method shows the formatted help text. Note that the printed text may be different from that which is returned by the method. Allows for greater flexibility.
