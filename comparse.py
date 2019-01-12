@@ -123,7 +123,7 @@ class comparse(object):
                     if (var_type == "bool"):
                         self.data[attribute].append(bool(default))   #Updates if "attribute" exists, else adds "attribute".
 
-        #This filters out empty strings from the list before returning it. 
+        #This filters out empty strings (other than 0, False and None values) from the list before returning it. 
         for attribute in self.attributes: self.data[attribute] = list(filter(None.__ne__, self.data[attribute]))
         return self.data
     
