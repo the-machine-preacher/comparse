@@ -1,16 +1,18 @@
 from comparse import comparse
 query = comparse(False)
-query.add_argument("log_channel", "str", "logs.txt", "Logs the channel in specified file. DEFAULT ARGUMENT(S): log_channel='logs.txt'")
-query.add_argument("content_filter", "str", None, "Filter log by content. DEFAULT ARGUMENT(S): content_filter=None")
-query.add_argument("log_attachments", "bool", True, "Logs attachments. DEFAULT ARGUMENT(S): log_attachments=True")
-query.add_argument("log_author", "bool", False, "Logs author of message. DEFAULT ARGUMENT(S): log_author=False")
-query.add_argument("exclude_content", "str", None, "Exclude content from log. DEFAULT ARGUMENT(S): exclude_content=None")
+query.add_argument("!log_this_channel", "str", "logs.txt", "Logs the channel the administrator is currently in to a specified file. Note, only administrators may use this. USAGE: !log_this_channel='logs.txt' See below for options.")
+query.add_argument("content_filter", "str", None, " + OPTION: Filter log by content. USAGE: !log_this_channel, content_filter=None")
+query.add_argument("exclude_content", "str", None, " + OPTION: Exclude content from log. USAGE: !log_this_channel, exclude_content=None")
+query.add_argument("log_attachments", "bool", True, " + OPTION: Logs attachments. USAGE: !log_this_channel, log_attachments=True")
+query.add_argument("log_author", "bool", False, " + OPTION: Logs author of message. USAGE: l!og_this_channel, log_author=False")
+query.add_argument("!print_to_channel", "str", None, "Print the message attachments to the channel the administrator is currently in. Note, only administrators may use this. USAGE: !print_to_channel")
+query.add_argument("!profanity_filter", "bool", False, "Toggles the profanity filter on or off (filter swear words). Note, only administrators may use this. USAGE: !profanity_filter=False")
 
 #FIRST EXAMPLE
-message = "log_channel --h"
+message = "This message will print out the help text for: !log_this_channel -h, regradless of the sentence structure."
 file_name = query.parse(message)
 try: print(file_name['exclude_content'][0])
-except: print(query.parse("--help"))
+except: print(query.parse(message))
 
 #SECOND EXAMPLE
 message = "log_channel=example.txt, content_filter=posted, log_attachments=True, log_author=True, exclude_content='apple, pear, orange'"

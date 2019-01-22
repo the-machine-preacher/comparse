@@ -22,9 +22,11 @@ class comparse(object):
     def parse(self, message):  
         try:
             #Shows the help text if the user requests it.
-            if(("--h" or "--help") in message or message.endswith("-h")):
+            if(("-h" or "-help") in message or message.endswith("-h")):
+                help_list = [attribute for attribute in self.attributes if attribute in message] #Prepare only requested help text. 
+                if not help_list: help_list = self.attributes #If no specific help requested, prepare them all!
                 if not self.suppress_help_txt:
-                    return comparse.show_help(self)
+                    return comparse.show_help(self, help_list)
 
             #Remove unwanted symbols (e.g. "=", ":", "[]", "()", "{}", etc.)
             message = message.replace("=", " ")
@@ -128,32 +130,35 @@ class comparse(object):
         return self.data
     
     #This method shows the formatted help text. Note that the printed text may be different from that which is returned by the method. Allows for greater flexibility.
-    def show_help(self):
+    def show_help(self, help_list):
         show_help = "" #Text variable to be returned.
         '''
         #Optional print statements which could be used:
         print("\nCommand parsing for this program was done using COMPARSE: a flexible command-line parsing module. Designed to extract ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables.")
         print("\n usage:\n")
         for attribute, help_txt, var_type in zip(self.attributes, self.help_txts, self.var_types):
-            print(attribute)
-            print("    "+help_txt)
-            print("    VARIABLE TYPE: "+var_type)
-            print("    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n")
-        print("    [if the value for the variable is not specified, then its specified default value is used]")
-        print("\n optional arguments:")
-        print("    --h, --help\t\t\t\t[show this help message and exit] \n")
+            if attribute in help_list:
+                print(attribute)
+                print("    "+help_txt)
+                print("    VARIABLE TYPE: "+var_type)
+                print("    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n")
+                print("    [if the value for the variable is not specified, then its specified default value is used]")
+                print("\n optional arguments:")
+                print("    --h, --help\t\t\t\t[show this help message and exit] \n")
         '''
         #Collate help text into a neat variable to be returned by the method.
         show_help += "\nCommand parsing for this program was done using COMPARSE: a flexible commandline parsing module. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables."
         show_help += "\n\n usage:\n"
         for attribute, help_txt, var_type in zip(self.attributes, self.help_txts, self.var_types):
-            show_help += "\n"+attribute
-            show_help += "\n    "+help_txt+"\n"
-            show_help += "    VARIABLE TYPE: "+var_type+"\n"
-            show_help += "    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n"
-        show_help += "\n    [if the value for the variable is not specified, then its specified default value is used]"
-        show_help += "\n\n optional arguments:"
-        show_help += "    --h, --help\t\t\t\t[show this help message and exit] \n"
+            #Only show requested help, don't bombard the user with everything!
+            if attribute in help_list:
+                show_help += "\n"+attribute
+                show_help += "\n    "+help_txt+"\n"
+                show_help += "    VARIABLE TYPE: "+var_type+"\n"
+                show_help += "    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n"
+                show_help += "\n    [if the value for the variable is not specified, then its specified default value is used]"
+                show_help += "\n\n optional arguments:"
+                show_help += "    --h, --help\t\t\t\t[show this help message and exit] \n"
         return show_help
 
     #This method collects all attributes from the "outside world" into arrays and passes them into the parse function within the local environment.
