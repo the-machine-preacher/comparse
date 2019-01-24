@@ -20,113 +20,97 @@ class comparse(object):
         self.suppress_help_txt = suppress_help_txt
 
     def parse(self, message):  
-        try:
-            #Shows the help text if the user requests it.
-            if(("-h" or "-help") in message or message.endswith("-h")):
-                help_list = [attribute for attribute in self.attributes if attribute in message] #Prepare only requested help text. 
-                if not help_list: help_list = self.attributes #If no specific help requested, prepare them all!
-                if not self.suppress_help_txt:
-                    return comparse.show_help(self, help_list)
+        #Shows the help text if the user requests it.
+        if(("-h" or "-help") in message or message.endswith("-h")):
+            help_list = [attribute for attribute in self.attributes if attribute in message] #Prepare only requested help text. 
+            if not help_list: help_list = self.attributes #If no specific help requested, prepare them all!
+            if not self.suppress_help_txt:
+                return comparse.show_help(self, help_list)
 
-            #Remove unwanted symbols (e.g. "=", ":", "[]", "()", "{}", etc.)
-            message = message.replace("=", " ")
-            message = message.replace(":", " ")
-            #message = message.replace(".", "")
-            message = message.replace("'", "")
-            message = message.replace('"', "")
-            message = message.replace("[", '')
-            message = message.replace("]", '')
-            message = message.replace("(", '')
-            message = message.replace(")", '')
-            message = message.replace("{", '')
-            message = message.replace("}", '')
-            self.message = message
+        #Remove unwanted symbols (e.g. "=", ":", "[]", "()", "{}", etc.)
+        message = message.replace("=", " ")
+        message = message.replace(":", " ")
+        #message = message.replace(".", "")
+        message = message.replace("'", "")
+        message = message.replace('"', "")
+        message = message.replace("[", '')
+        message = message.replace("]", '')
+        message = message.replace("(", '')
+        message = message.replace(")", '')
+        message = message.replace("{", '')
+        message = message.replace("}", '')
+        self.message = message
 
-            #Insert quotation marks after string attributes. This will ensure that the entire substring following an attribute marker is correctly parsed. #This function matches the entire attribute found in the sentence so that quotation marks can be applied accurately to the string.
-            def attribute_match(string, match):
-                for word in string.split():
-                    if match in word: return word
-            
-            #This returns a SET of attributes (it filters out duplicates and empty values).
-            attributes = []
-            for attribute in self.attributes: 
-                attributes.append(attribute_match(message, attribute))
-                attributes = list(set(attributes))
-                attributes = [x for x in attributes if x is not None]
+        #Insert quotation marks after string attributes. This will ensure that the entire substring following an attribute marker is correctly parsed. #This function matches the entire attribute found in the sentence so that quotation marks can be applied accurately to the string.
+        def attribute_match(string, match):
+            for word in string.split():
+                if match in word: return word
+        
+        #This returns a SET of attributes (it filters out duplicates and empty values).
+        attributes = []
+        for attribute in self.attributes: 
+            attributes.append(attribute_match(message, attribute))
+            attributes = list(set(attributes))
+            attributes = [x for x in attributes if x is not None]
 
-            #This applies the quotation marks to the string input. 
-            for attribute in attributes:
-                modified_attribute = ' '+attribute+' '
-                message = modified_attribute.join('"{}"'.format(s.strip()) for s in message.split(attribute))
-                if attributes.index(attribute)>0: message = message[1:-1]
-            
-            #This is the main engine that detects variables within the natural language text and populates them with values.
-            args = shlex.split(message) #This splits the message. 
-            #This section declares 'options' dictionary and populates it.
-            options = {}
-            for k,v in zip(args, args[1:]): 
-                k = k.strip('-')
-                options[k] = []
-            #This populates the 'options' dictionary.
-            for k,v in zip(args, args[1:]): 
-                k = k.strip('-')
-                options[k].append(v)
-            #This section declares 'data' dictionary and populates it.
-            self.data = {}
-            for attribute in self.attributes: self.data[attribute] = []
-            
-            #This populates the 'data' variable.  
-            for attribute, var_type, default in zip(self.attributes, self.var_types, self.defaults):
-                if (var_type == "int"):
-                    for element in options[attribute]: 
-                        if element: self.data[attribute].append(int(element))   #Updates if "attribute" exists, else adds "attribute".
-                        else: self.data[attribute].append(int(default))
-                if (var_type == "str"):
-                    #Initially strips white-spaces and splits the string by commas. Appends the default value if none are specified. This is a rigorous algorithm which appends default values even if values have been partially specified by the user.
-                    for element in options[attribute]: 
-                        if element: 
-                            for item in [x.strip() for x in element.split(',')]: self.data[attribute].append(str(item))   
-                        else: 
-                            if default:
-                                for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))  
-                            else: self.data[attribute].append(str(default))  
-                if (var_type == "float"):
-                    for element in options[attribute]: 
-                        if element: self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
-                        else: self.data[attribute].append(float(default))
-                if (var_type == "bool"):
-                    for element in options[attribute]: 
-                        if element: self.data[attribute].append(bool(element))   #Updates if "attribute" exists, else adds "attribute".
-                        else: self.data[attribute].append(bool(default))
-        except:
-            for attribute, var_type, default in zip(self.attributes, self.var_types, self.defaults):
-                #Searches for arguments that are actually IN the message.
-                try:
-                    if (var_type == "int"):
-                        for element in options[attribute]: self.data[attribute].append(int(element))   #Updates if "attribute" exists, else adds "attribute".
-                    if (var_type == "str"):
-                        #Initially strips white-spaces and splits the string by commas. Appends the default value if none are specified. This is a rigorous algorithm which appends default values even if values have been partially specified by the user.
-                        for element in options[attribute]:
-                            for item in [x.strip() for x in element.split(',')]: self.data[attribute].append(str(item))   
-                    if (var_type == "float"):
-                        for element in options[attribute]: self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
-                    if (var_type == "bool"):
-                        for element in options[attribute]: self.data[attribute].append(bool(element))   #Updates if "attribute" exists, else adds "attribute".
-                #Adds default values to either attributes that are not in the message or if their values are not specified in the message.
-                except:
-                    if (var_type == "int"):
-                        self.data[attribute].append(int(default))   #Updates if "attribute" exists, else adds "attribute".
-                    if (var_type == "str"):
+        #This applies the quotation marks to the string input. 
+        for attribute in attributes:
+            modified_attribute = ' '+attribute+' '
+            message = modified_attribute.join('"{}"'.format(s.strip()) for s in message.split(attribute))
+            if attributes.index(attribute)>0: message = message[1:-1]
+        
+        #This is the main engine that detects variables within the natural language text and populates them with values.
+        args = shlex.split(message) #This splits the message. 
+        
+        #This section declares 'temp_options' and 'options' dictionaries and populates them.
+        temp_options = {}
+        options = {}
+        for k,v in zip(args, args[1:]): 
+            k = k.strip('-')
+            temp_options[k] = []
+        
+        #This populates the 'temp_options' dictionary.
+        for k,v in zip(args, args[1:]): 
+            k = k.strip('-')
+            for item in [x.strip(' ') for x in v.split(",")]: temp_options[k].append(item) #Split elements by comma.
+            temp_options[k] = [x for x in temp_options[k] if x] #Get rid of empty elements from the list.
+
+        #This picks out only attributes specified in the message and populates the other, unspecified attributes with default values. 
+        for attribute in self.attributes: 
+            if attribute in list(temp_options.keys()): options[attribute] = temp_options[attribute]
+            else: options[attribute] = [self.defaults[self.attributes.index(attribute)]]
+
+        #This section declares 'data' dictionary and populates it.
+        self.data = {}
+        for attribute in self.attributes: self.data[attribute] = []
+        
+        #This applies the correct variable type to the individual variables.
+        for attribute, var_type, default in zip(self.attributes, self.var_types, self.defaults):
+            if (var_type == "int"):
+                for element in options[attribute]: 
+                    try: self.data[attribute].append(int(element))
+                    except:
+                        self.data[attribute].append(int(default))
+            if (var_type == "str"):
+                #Initially strips white-spaces and splits the string by commas. Appends the default value if none are specified. This is a rigorous algorithm which appends default values even if values have been partially specified by the user.
+                for element in options[attribute]: 
+                    try: 
+                        for item in [x.strip() for x in element.split(',')]: self.data[attribute].append(str(item))   
+                    except: 
                         if default:
-                            for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))   #Initially strips white-spaces and splits the string by commas. Updates if "attribute" exists, else adds "attribute".
-                        else: self.data[attribute].append(str(default))
-                    if (var_type == "float"):
-                        self.data[attribute].append(float(default))   #Updates if "attribute" exists, else adds "attribute".
-                    if (var_type == "bool"):
-                        self.data[attribute].append(bool(default))   #Updates if "attribute" exists, else adds "attribute".
-
-        #This filters out empty strings (other than 0, False and None values) from the list before returning it. 
-        for attribute in self.attributes: self.data[attribute] = list(filter(None.__ne__, self.data[attribute]))
+                            for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))  
+                        else: self.data[attribute].append(str(default))  
+            if (var_type == "float"):
+                for element in options[attribute]: 
+                    try: self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
+                    except: self.data[attribute].append(float(default))
+            if (var_type == "bool"):
+                for element in options[attribute]: 
+                    try: 
+                        if element.lower() == 'false': self.data[attribute].append(bool(0))
+                        if element.lower() == 'true': self.data[attribute].append(bool(1))
+                    except: self.data[attribute].append(bool(default))
+    
         return self.data
     
     #This method shows the formatted help text. Note that the printed text may be different from that which is returned by the method. Allows for greater flexibility.
