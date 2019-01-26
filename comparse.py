@@ -17,6 +17,7 @@ class comparse(object):
         self.var_types = []
         self.defaults = []
         self.help_txts = []
+        self.error_log = "Invalid entry (or none) for the following variables, default values were used instead (-h for help):"
         self.suppress_help_txt = suppress_help_txt
 
     def parse(self, message):  
@@ -25,7 +26,9 @@ class comparse(object):
             help_list = [attribute for attribute in self.attributes if attribute in message] #Prepare only requested help text. 
             if not help_list: help_list = self.attributes #If no specific help requested, prepare them all!
             if not self.suppress_help_txt:
-                return comparse.show_help(self, help_list)
+                self.error_log = comparse.show_help(self, help_list)
+                return self.error_log
+        help_list = [] #Flush the help_list variable.
 
         #Remove unwanted symbols (e.g. "=", ":", "[]", "()", "{}", etc.)
         message = message.replace("=", " ")
@@ -77,40 +80,38 @@ class comparse(object):
 
         #This picks out only attributes specified in the message and populates the other, unspecified attributes with default values. 
         for attribute in self.attributes: 
-            if attribute in list(temp_options.keys()): options[attribute] = temp_options[attribute]
-            else: options[attribute] = [self.defaults[self.attributes.index(attribute)]]
+            if attribute in list(temp_options.keys()) and temp_options[attribute]: options[attribute] = temp_options[attribute]
+            else: 
+                options[attribute] = [self.defaults[self.attributes.index(attribute)]]
+                #Note in error log.
+                help_list.append(attribute)
+                for i in help_list: 
+                    if i not in self.error_log : self.error_log += ", " + i 
 
         #This section declares 'data' dictionary and populates it.
         self.data = {}
         for attribute in self.attributes: self.data[attribute] = []
-        
-        #This applies the correct variable type to the individual variables.
+        #This applies the correct variable type to the individual variables. Also provides for error-checking and logging. 
         for attribute, var_type, default in zip(self.attributes, self.var_types, self.defaults):
-            if (var_type == "int"):
-                for element in options[attribute]: 
-                    try: self.data[attribute].append(int(element))
-                    except:
-                        self.data[attribute].append(int(default))
-            if (var_type == "str"):
-                #Initially strips white-spaces and splits the string by commas. Appends the default value if none are specified. This is a rigorous algorithm which appends default values even if values have been partially specified by the user.
-                for element in options[attribute]: 
-                    try: 
-                        for item in [x.strip() for x in element.split(',')]: self.data[attribute].append(str(item))   
-                    except: 
-                        if default:
-                            for item in [x.strip() for x in default.split(',')]: self.data[attribute].append(str(item))  
-                        else: self.data[attribute].append(str(default))  
-            if (var_type == "float"):
-                for element in options[attribute]: 
-                    try: self.data[attribute].append(float(element))   #Updates if "attribute" exists, else adds "attribute".
-                    except: self.data[attribute].append(float(default))
-            if (var_type == "bool"):
-                for element in options[attribute]: 
-                    try: 
-                        if element.lower() == 'false': self.data[attribute].append(bool(0))
-                        if element.lower() == 'true': self.data[attribute].append(bool(1))
-                    except: self.data[attribute].append(bool(default))
-    
+            #Appends the default value if none are specified, appends default values even if values have been partially specified by the user.
+            for element in options[attribute]: 
+                try:
+                    #Cater for user errors, invalid entries, boolean and None variables.
+                    if element == "True" or element == "true" or element == "TRUE": self.data[attribute].append(bool(1))
+                    elif element == "False" or element == "false" or element == "FALSE": self.data[attribute].append(bool(0))
+                    elif element == None: self.data[attribute].append(None)
+                    else: self.data[attribute].append(var_type(element))   
+                except: 
+                    #Note in error log.
+                    help_list.append(attribute)
+                    for i in help_list: 
+                        if i not in self.error_log : self.error_log += ", " + i 
+                    #Cater for user errors, invalid entries, boolean and None variables.
+                    if default == "True" or default == "true" or default == "TRUE": self.data[attribute].append(bool(1))
+                    elif default == "False" or default == "false" or default == "FALSE": self.data[attribute].append(bool(0))
+                    elif default == None: self.data[attribute].append(None)
+                    else: self.data[attribute].append(var_type(default))  
+                    
         return self.data
     
     #This method shows the formatted help text. Note that the printed text may be different from that which is returned by the method. Allows for greater flexibility.
@@ -124,7 +125,7 @@ class comparse(object):
             if attribute in help_list:
                 print(attribute)
                 print("    "+help_txt)
-                print("    VARIABLE TYPE: "+var_type)
+                print("    VARIABLE TYPE: "+str(type(var_type)))
                 print("    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n")
                 print("    [if the value for the variable is not specified, then its specified default value is used]")
                 print("\n optional arguments:")
@@ -138,7 +139,7 @@ class comparse(object):
             if attribute in help_list:
                 show_help += "\n"+attribute
                 show_help += "\n    "+help_txt+"\n"
-                show_help += "    VARIABLE TYPE: "+var_type+"\n"
+                show_help += "    VARIABLE TYPE: "+str(type(var_type))+"\n"
                 show_help += "    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n"
                 show_help += "\n    [if the value for the variable is not specified, then its specified default value is used]"
                 show_help += "\n\n optional arguments:"
