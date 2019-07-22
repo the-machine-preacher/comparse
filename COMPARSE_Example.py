@@ -8,7 +8,7 @@ query.add_argument("log_author", bool, False, " + OPTION: Logs author of message
 query.add_argument("!print_to_channel", str, None, "Print the message attachments to the channel the administrator is currently in. Note, only administrators may use this. USAGE: !print_to_channel")
 query.add_argument("!profanity_filter", bool, False, "Toggles the profanity filter on or off (filter swear words). Note, only administrators may use this. USAGE: !profanity_filter=False")
 query.add_argument("!int_variable", int, 13, "This is a random interger variable.")
-
+'''
 #FIRST EXAMPLE
 message = "This message will print out the help text for: !log_this_channel -h, regradless of the sentence structure."
 file_name = query.parse(message)
@@ -34,14 +34,16 @@ message = "i made a booboo !log_this_channel, log_author=False, log_attachments=
 file_name = query.parse(message)
 try: print(file_name)
 except: print(query.parse(message))
-
+'''
 #FIFTH EXAMPLE (extract variables from COMPARSE)
-message = "!log_this_channel=example.txt, content_filter=posted, log_attachments=false, log_author=false, exclude_content='apple, pear, orange', !int_variable=26"
-message = "!log_this_channel, log_author true"
+message = "!log_this_channel example.txt, content_filter=posted, log_attachments=false, log_author=false, exclude_content='apple, pear, orange', !int_variable=26"
+#message = "!log_this_channel, log_author true"
+
 file_name = query.parse(message)["!log_this_channel"][0] #Specify a name for the log file.
 content_filter = query.parse(message)["content_filter"][0]
 log_attachments = query.parse(message)["log_attachments"][0]
 log_author = query.parse(message)["log_author"][0]
 exclude_content = query.parse(message)["exclude_content"]
+int_variable = query.parse(message)["!int_variable"]
 print(query.parse(message))
-print(file_name, content_filter, log_attachments, log_author, exclude_content)
+print(file_name, content_filter, log_attachments, log_author, exclude_content, int_variable)

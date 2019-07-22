@@ -9,11 +9,12 @@ Comparse is a flexible commandline parsing module. Designed to pick out ATTRIBUT
 - NOTE: the entire substring following an attribute marker will be parsed. This function outputs a a dictionary containing LISTS.
 '''
 
-import shlex
+import shlex, re, difflib
 class comparse(object):
     def __init__(self, suppress_help_txt):
         self.data = {}   #This is the "data" dictionary that this function will ultimately return.
         self.attributes = []
+        self.retrieved_attributes = [] #This are a list of attributes that were found in the message.
         self.var_types = []
         self.defaults = []
         self.help_txts = []
@@ -42,26 +43,40 @@ class comparse(object):
         message = message.replace(")", '')
         message = message.replace("{", '')
         message = message.replace("}", '')
-        self.message = message
+        #This allows mathematical symbols to be used by ensuring that only a single space surrounds characters not surrounded by spaces or surrounded by multiple spaces.  
+        self.message = message = re.sub(r'\s*([<>+*/-])\s*', ' \\1 ', message)
 
         #Insert quotation marks after string attributes. This will ensure that the entire substring following an attribute marker is correctly parsed. #This function matches the entire attribute found in the sentence so that quotation marks can be applied accurately to the string.
         def attribute_match(string, match):
+            #The code below attempts to match attributes that are partially specified in the message, in many possible combinations. It also automatically corrects the main self.message variable. 
             for word in string.split():
-                if match in word: return word
+                if match in word: 
+                    if match != word:
+                        self.message = self.message.replace(word, match)
+                        return match
+                elif word in match:
+                    self.message = self.message.replace(" "+word+" ", match) #Match and replace whole words only!
+                    return match
+                else:
+                    try: #difflib attempts to find the closest match to the attribute specified by the user. 
+                        self.message = self.message.replace(difflib.get_close_matches(match, string.split())[0], match)
+                        return match
+                    except: pass
         
         #This returns a SET of attributes (it filters out duplicates and empty values).
         attributes = []
         for attribute in self.attributes: 
             attributes.append(attribute_match(message, attribute))
             attributes = list(set(attributes))
-            attributes = [x for x in attributes if x is not None]
+            attributes = self.retrieved_attributes = [x for x in attributes if x is not None]
 
         #This applies the quotation marks to the string input. 
+        message = self.message #Ensure that the message variable contains the corrected message (corrected by the attribute_match function above).
         for attribute in attributes:
             modified_attribute = ' '+attribute+' '
-            message = modified_attribute.join('"{}"'.format(s.strip()) for s in message.split(attribute))
+            message = modified_attribute.join('"{}"'.format(s.strip()) for s in message.split(attribute+" "))
             if attributes.index(attribute)>0: message = message[1:-1]
-        
+
         #This is the main engine that detects variables within the natural language text and populates them with values.
         args = shlex.split(message) #This splits the message. 
         
@@ -69,12 +84,12 @@ class comparse(object):
         temp_options = {}
         options = {}
         for k,v in zip(args, args[1:]): 
-            k = k.strip('-')
+            #k = k.strip('-')
             temp_options[k] = []
         
         #This populates the 'temp_options' dictionary.
         for k,v in zip(args, args[1:]): 
-            k = k.strip('-')
+            #k = k.strip('-')
             for item in [x.strip(' ') for x in v.split(",")]: temp_options[k].append(item) #Split elements by comma.
             temp_options[k] = [x for x in temp_options[k] if x] #Get rid of empty elements from the list.
 
@@ -110,8 +125,7 @@ class comparse(object):
                     if default == "True" or default == "true" or default == "TRUE": self.data[attribute].append(bool(1))
                     elif default == "False" or default == "false" or default == "FALSE": self.data[attribute].append(bool(0))
                     elif default == None: self.data[attribute].append(None)
-                    else: self.data[attribute].append(var_type(default))  
-                    
+                    else: self.data[attribute].append(var_type(default))
         return self.data
     
     #This method shows the formatted help text. Note that the printed text may be different from that which is returned by the method. Allows for greater flexibility.
@@ -121,11 +135,12 @@ class comparse(object):
         #Optional print statements which could be used:
         print("\nCommand parsing for this program was done using COMPARSE: a flexible command-line parsing module. Designed to extract ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables.")
         print("\n usage:\n")
-        for attribute, help_txt, var_type in zip(self.attributes, self.help_txts, self.var_types):
+        for attribute, help_txt, var_type, default in zip(self.attributes, self.help_txts, self.var_types, self.defaults):
             if attribute in help_list:
                 print(attribute)
                 print("    "+help_txt)
-                print("    VARIABLE TYPE: "+str(type(var_type)))
+                print("    VARIABLE TYPE: "+var_type.__name__)
+                print("    DEFAULT: "+str(default)
                 print("    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n")
                 print("    [if the value for the variable is not specified, then its specified default value is used]")
                 print("\n optional arguments:")
@@ -134,12 +149,13 @@ class comparse(object):
         #Collate help text into a neat variable to be returned by the method.
         show_help += "\nCommand parsing for this program was done using COMPARSE: a flexible commandline parsing module. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables."
         show_help += "\n\n usage:\n"
-        for attribute, help_txt, var_type in zip(self.attributes, self.help_txts, self.var_types):
+        for attribute, help_txt, var_type, default in zip(self.attributes, self.help_txts, self.var_types, self.defaults):
             #Only show requested help, don't bombard the user with everything!
             if attribute in help_list:
                 show_help += "\n"+attribute
                 show_help += "\n    "+help_txt+"\n"
-                show_help += "    VARIABLE TYPE: "+str(type(var_type))+"\n"
+                show_help += "    VARIABLE TYPE: "+var_type.__name__+"\n"
+                show_help += "    DEFAULT: "+str(default)+"\n"
                 show_help += "    ALTERNATIVES: "+ "-"+attribute+"="+str(attribute).upper() + ", -"+attribute+":"+str(attribute).upper() + ", -"+attribute+" "+str(attribute).upper() + "\n"
                 show_help += "\n    [if the value for the variable is not specified, then its specified default value is used]"
                 show_help += "\n\n optional arguments:"
@@ -186,6 +202,10 @@ class comparse(object):
             for word in stopwords: sentence = sentence.replace(str(word), "") #Converts int to string. 
         return sentence
 
+    #This method only retrieves attributes that were detected in the message, excluding all default values given.
+    def show_message_attributes(self):
+        return self.retrieved_attributes
+
 '''USAGE:
 #The test message you wish to process.
 message = 'I have two variables: -mass: 12 --vel= OR [this is just another descriptor, apple pie] AND that new thing NOT apple strudel OR that new fangled thing SYN complicated NOT apple, orange, pear ice cream'
@@ -195,12 +215,12 @@ message = 'I have two variables: -mass: 12 --vel= OR [this is just another descr
 query = comparse(True)
 
 #Tell the parser what arguments it should accept.
-query.add_argument("vel", "int", 10, "this is your velocity attribute")
-query.add_argument("mass", "float", 10, "this is your mass attribute")
-query.add_argument("OR", "str", "", "OR boolean operator")
-query.add_argument("AND", "str", "", "AND boolean operator")
-query.add_argument("NOT", "str", "", "NOT boolean operator")
-query.add_argument("SYN", "str", "", "SYN method-call")
+query.add_argument("vel", int, 10, "this is your velocity attribute")
+query.add_argument("mass", float, 10, "this is your mass attribute")
+query.add_argument("OR", str, "", "OR boolean operator")
+query.add_argument("AND", str, "", "AND boolean operator")
+query.add_argument("NOT", str, "", "NOT boolean operator")
+query.add_argument("SYN", str, "", "SYN method-call")
 
 #Give the parser a specific message for which it should extract arguments.
 print(query.parse(message))
