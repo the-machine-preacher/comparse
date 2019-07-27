@@ -49,29 +49,21 @@ class comparse(object):
         #Insert quotation marks after string attributes. This will ensure that the entire substring following an attribute marker is correctly parsed. #This function matches the entire attribute found in the sentence so that quotation marks can be applied accurately to the string.
         def attribute_match(string, match):
             #The code below attempts to match attributes that are partially specified in the message, in many possible combinations. It also automatically corrects the main self.message variable. 
-            for word in string.split():
-                if match in word: 
-                    if match != word:
-                        self.message = self.message.replace(word, match)
-                        return match
-                elif word in match:
-                    self.message = self.message.replace(" "+word+" ", match) #Match and replace whole words only!
-                    return match
-                else:
-                    try: #difflib attempts to find the closest match to the attribute specified by the user. 
-                        self.message = self.message.replace(difflib.get_close_matches(match, string.split())[0], match)
-                        return match
-                    except: pass
-        
+            for word in string.split(): 
+                if match == word: return match
+            if difflib.get_close_matches(match, string.split()): #Finds the closest match and conforms the original message to fit the attribute. 
+                self.message = self.message.replace(difflib.get_close_matches(match, string.split())[0], match)
+                return match
+
         #This returns a SET of attributes (it filters out duplicates and empty values).
         attributes = []
         for attribute in self.attributes: 
             attributes.append(attribute_match(message, attribute))
             attributes = list(set(attributes))
             attributes = self.retrieved_attributes = [x for x in attributes if x is not None]
+        message = self.message #Conforms the original message to fit the attribute.
 
         #This applies the quotation marks to the string input. 
-        message = self.message #Ensure that the message variable contains the corrected message (corrected by the attribute_match function above).
         for attribute in attributes:
             modified_attribute = ' '+attribute+' '
             message = modified_attribute.join('"{}"'.format(s.strip()) for s in message.split(attribute+" "))
