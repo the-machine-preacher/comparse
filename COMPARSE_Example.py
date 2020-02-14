@@ -1,49 +1,40 @@
 from comparse import comparse
 query = comparse(False)
-query.add_argument("!log_this_channel", str, "logs.txt", "Logs the channel the administrator is currently in to a specified file. Note, only administrators may use this. USAGE: !log_this_channel='logs.txt' See below for options.")
-query.add_argument("content_filter", str, None, " + OPTION: Filter log by content. USAGE: !log_this_channel, content_filter=None")
-query.add_argument("exclude_content", str, None, " + OPTION: Exclude content from log. USAGE: !log_this_channel, exclude_content=None")
-query.add_argument("log_attachments", bool, True, " + OPTION: Logs attachments. USAGE: !log_this_channel, log_attachments=True")
-query.add_argument("log_author", bool, False, " + OPTION: Logs author of message. USAGE: l!og_this_channel, log_author=False")
-query.add_argument("!print_to_channel", str, None, "Print the message attachments to the channel the administrator is currently in. Note, only administrators may use this. USAGE: !print_to_channel")
-query.add_argument("!profanity_filter", bool, False, "Toggles the profanity filter on or off (filter swear words). Note, only administrators may use this. USAGE: !profanity_filter=False")
-query.add_argument("!int_variable", int, 13, "This is a random interger variable.")
-'''
-#FIRST EXAMPLE
-message = "This message will print out the help text for: !log_this_channel -h, regradless of the sentence structure."
-file_name = query.parse(message)
-try: print(file_name['exclude_content'][0])
-except: print(query.parse(message))
+query.add_argument('points', int, 27, "Number of points used in point-buy")
+query.add_argument('str', int, 8, "Strength score")
+query.add_argument('dex', int, 8, "Dexterity score")
+query.add_argument('con', int, 8, "Constitution score")
+query.add_argument('wis', int, 8, "Wisdom score")
+query.add_argument('int', int, 8, "Intelligence score")
+query.add_argument('cha', int, 8, "Charisma score")
+query.add_argument('skills', str, '', "List of skills separated by a coma ','")
+query.add_argument('languages', str, 'Common', "List of languages separated by comas ','")
+query.add_argument('name', str, 'Jane Doe', "Player Character")
+query.add_argument('AC', int, 10, "Armor Class")
+query.add_argument('HP', int, 0, "Health Points")
+query.add_argument('initiative', int, 0, "Initiative")
+query.add_argument('prof_bonus', int, 2, "Proficiency bonus")
+query.add_argument("-", int, 10, "Player Character")
+query.add_argument("d", int, 20, "Dice type")
 
-#SECOND EXAMPLE
-message = "!log_this_channel=example.txt, content_filter=posted, log_attachments=false, log_author=FALSE, exclude_content='apple, pear, orange', !int_variable=26"
-file_name = query.parse(message)
-try: 
-    print(file_name)
-    print(query.error_log)
-except: print(query.error_log)
+'''REMOVE THE HASH-TAGS TO TEST SELECTED LINES OF CODE'''
+message1 = "1d20+3"
+message1 = "Naame: Emily Dragonclaw, points=27, str=17, dex: 15, con: 13, int: 8, wis: 9, cha: 12, +3, skills: [Animal Handling, Athletics, History, Intimidation, Persuasion]"
+#message1 = "record dex 15"
+message2 = "exclude_content=pineapple pear flint, !log_this_channel example.txt, content_filter=posted, log_attachments=false, log_author=false, !int_variable=26"
+message2 = "exclude_content=pineapple pear orange, points=27, str=17, dex: 15, con: 13, int: 8, wis: 9, cha: 12, skills: [Animal Handling, Athletics, History, Intimidation, Persuasion]"
+message2 = "skills: insight, persuasion, intimidation, athletics, survival"
+message2 = "Name Rayna, Skills: insight, persuasion 3, intimidation 10, athletics 001, procrastinating, survival"
+message = 'roll 3d 4 - 5 with - 60str, without str 78'
+#message = "languages Elvish, Undercommon, Abyssal, Common"
 
-#THIRD EXAMPLE
-message = "!log_this_channel, exclude_content='apple, pear'"
-file_name = query.parse(message)
-try: print(file_name['exclude_content'])
-except: print(query.parse("--help"))
+#question = query.parse(message1)['dex']
+#exclude_content = query.parse(message2)['exclude_content']
 
-#FOURTH EXAMPLE
-message = "i made a booboo !log_this_channel, log_author=False, log_attachments=False"
-file_name = query.parse(message)
-try: print(file_name)
-except: print(query.parse(message))
-'''
-#FIFTH EXAMPLE (extract variables from COMPARSE)
-message = "!log_this_channel example.txt, content_filter=posted, log_attachments=false, log_author=false, exclude_content='apple, pear, orange', !int_variable=26"
-#message = "!log_this_channel, log_author true"
-
-file_name = query.parse(message)["!log_this_channel"][0] #Specify a name for the log file.
-content_filter = query.parse(message)["content_filter"][0]
-log_attachments = query.parse(message)["log_attachments"][0]
-log_author = query.parse(message)["log_author"][0]
-exclude_content = query.parse(message)["exclude_content"]
-int_variable = query.parse(message)["!int_variable"]
-print(query.parse(message))
-print(file_name, content_filter, log_attachments, log_author, exclude_content, int_variable)
+#print(question)
+#print(query.show_message_attributes())
+#print(query.parse(message)['d'])
+#print(query.parse(message2)['name'], query.parse(message2)['skills'], query.parse(message2)['+'])
+#print(query.parse(message1)['name'])
+print(query.parse(message)['-'], query.parse(message)['str'])
+#print(query.parse(message)['languages'])
