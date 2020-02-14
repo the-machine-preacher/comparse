@@ -261,11 +261,11 @@ if __name__ == "__main__":
     print(f"These are the sorted values:\n{query.sorted_values()}\n")
     print(f"After attribute-value pairs have been removed:\n{query.remove_all_attributes()}\n")
 
-    #Detects a value with a unit of measure within a message.
+    #Detect a value with a unit of measure within a message.
     message2 = 'The temperature in this room is too cold, crank it up to 27.6 degree please.'
     print(f"Temperature = {query.find_unit_value(message2, 'temperature', 'degree')} degrees\n")
 
-    #Detects single character attributes.
+    #Detect single character attributes.
     message3 = "d10+5 + 1 d 20 for parried attack + 4d12 to smite + 1d10"
     query.add_argument("d", int, 20, "XdY+n")
     print(f"These are the set of D&D dice to roll: {query.parse(message3)['d']}")
