@@ -1,7 +1,7 @@
 # comparse
 
 <p><b>COMPARSE - JUST LIKE ARGPARSE, ONLY BETTER!</b> <br />
-Comparse (short for "command parser") is a simple, flexible argument parser. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables. It uses the Python <code>shlex</code> and <code>difflib</code> modules. I have included the module in this repository.
+Comparse (short for "command parser") is a simple, flexible argument parser. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables. It uses the Python <code>shlex</code> and <code>difflib</code> modules. I have included the <code>shlex</code> module in this repository.
 <br>
 <br/><p><b>FEATURES</b>
 <br/>* User-friendly
