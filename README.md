@@ -35,7 +35,7 @@ I used a physics parser in examples A - F. The parser accepts values for mass an
     message2 = 'The temperature in this room is too cold, crank it up to 27.6 degree please.'
     print(query.find_unit_value(message2, 'temperature', 'degree'))
 
-    #H. Detect single character attributes.
+    #H. Detect single character attributes. I used D&D gaming dice as an example.
     message3 = "d10+5 + 1 d 20 for parried attack + 4d12 to smite + 1d10"
     query.add_argument("d", int, 20, "XdY+n")
     print(query.parse(message3)['d'])
