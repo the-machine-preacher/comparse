@@ -10,36 +10,36 @@ Comparse (short for "command-line parser") is a simple, flexible argument parser
 <br/>* Relatively fast compared to NLP modules
 </p>
 <br/><p><b>USAGE</b> <br />
-I used a physics parser as an example. The parser accepts values for mass and velocity and assigns them to a dictionary with keys 'mass' and 'vel' as specified by the parser. 
+I used a physics parser in examples A - F. The parser accepts values for mass and velocity and assigns them to a dictionary with keys 'mass' and 'vel' as specified. Examples G - I demonstrate other capabilities.  
 
-    #The test message you wish to process.
+    #A. The test message you wish to process.
     message = "I have two variables: -mass: 12 --vel= 18"
 
-    #Create a parser object. "True" if you wish to suppress the help message from being displayed. 
+    #B. Create a parser object. "True" if you wish to suppress the help message from being displayed. 
     physics = comparse(True)
 
-    #Tell the parser what arguments it should accept.
+    #C. Tell the parser what arguments it should accept.
     physics.add_argument("vel", "int", 10, "this is your velocity attribute")
     physics.add_argument("mass", "float", 10, "this is your mass attribute")  
 
-    #Give the parser a specific message for which it should extract arguments.
+    #D. Give the parser a specific message for which it should extract arguments.
     print(physics.parse(message))
     
-    #Extract a list of sorted values after the message has been parsed.
+    #E. Extract a list of sorted values after the message has been parsed.
     print(physics.sorted_values())
     
-    #Extract string after attribute-value pairs have been removed.
+    #F. Extract string after attribute-value pairs have been removed.
     print(physics.remove_all_attributes())
     
-    #Detect a value with a unit of measure within a message.
+    #G. Detect a value with a unit of measure within a message.
     message2 = 'The temperature in this room is too cold, crank it up to 27.6 degree please.'
     print(query.find_unit_value(message2, 'temperature', 'degree'))
 
-    #Detect single character attributes.
+    #H. Detect single character attributes.
     message3 = "d10+5 + 1 d 20 for parried attack + 4d12 to smite + 1d10"
     query.add_argument("d", int, 20, "XdY+n")
     print(query.parse(message3)['d'])
     
-    #Detect values PRIOR to attributes
+    #I. Detect values PRIOR to attributes
     print(query.parse(message3, reverse=True)['d'])
 </p>
