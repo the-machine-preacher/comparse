@@ -3,13 +3,13 @@
 <p><b>COMPARSE - JUST LIKE ARGPARSE, ONLY BETTER!</b> <br />
 Comparse (short for "command-line parser") is a simple, flexible argument parser. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables. It uses the Python <code>shlex</code> module. I have included the module in this repository.
 <br>
-<p><b>FEATURES</b>
-    - User-friendly
-    - Easy-to-use
-    - Accomodates spelling, grammar and syntax errors in the user-input by leveraging Python <code>difflib</code> module
-    - Relatively fast compared to NLP modules
+<br/><p><b>FEATURES</b>
+<br/>- User-friendly
+<br/>- Easy-to-use
+<br/>- Accomodates spelling, grammar and syntax errors in the user-input by leveraging Python <code>difflib</code> module
+<br/>- Relatively fast compared to NLP modules
 </p>
-<p><b>USAGE</b> <br />
+<br/><p><b>USAGE</b> <br />
 I used a physics parser as an example. The parser accepts values for mass and velocity and assigns them to a dictionary with keys 'mass' and 'vel' as specified by the parser. 
 
     #The test message you wish to process.
