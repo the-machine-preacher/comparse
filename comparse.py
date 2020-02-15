@@ -1,5 +1,5 @@
 '''COMPARSE - JUST LIKE ARGPARSE, ONLY BETTER!
-Comparse is a flexible commandline parsing module. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables.
+Comparse is a flexible commandline parsing module. Designed to pick out ATTRIBUTES and assign VALUES to them from a message containing many un-formatted attributes/variables. Module and documentation by TheMachinePreacher (the.machine.preacher@gmail.com), 14 Jul 2018.
 - message: the actual message,
 - attribute: the actual attribute (variable) you wish to extract from the message,
 - var_type: variable type, this accepts integers, string, float variables,
@@ -77,7 +77,7 @@ class comparse:
                     return match
 
         #This reverses a list and searches for values PRIOR to the attribute.
-        if self.reverse: self.message = self.message[::-1]
+        if self.reverse: self.message = " ".join(list(reversed(self.message.split(" "))))
 
         #This returns a SET of attributes (it filters out duplicates and empty values).
         attributes = []
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     print(f"After attribute-value pairs have been removed:\n{query.remove_all_attributes()}\n")
 
     #Detect a value with a unit of measure within a message.
-    message2 = 'The temperature in this room is too cold, crank it up to 27.6 degree please.'
+    message2 = 'The temperature in this room is too cold, crank it up to 27.6 degrees please.'
     print(f"Temperature = {query.find_unit_value(message2, 'temperature', 'degree')} degrees\n")
 
     #Detect single character attributes.
