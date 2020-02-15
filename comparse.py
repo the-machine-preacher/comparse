@@ -159,7 +159,7 @@ class comparse:
                             break
                         except ValueError:
                             pass
-                if var_type is float and not isinstance(element, str):
+                elif var_type is float and isinstance(element, str):
                     for sub_element in element.split(" "):
                         try:
                             # Find the first floating-point number then break the loop immediately,
@@ -252,10 +252,11 @@ class comparse:
 
         # Find the common, most probable value for the attribute specified.
         union = list(set(detected_variable_int).union(detected_unit_int, detected_variable_float, detected_unit_float))
-        try:
-            return [x for x in union if x != 0][0]
-        except IndexError:
-            return default
+
+        for x in union:
+            if x != 0:
+                return x
+        return default
 
     # This method collects all values within the message, sorts and returns them as a single list.
     def sorted_values(self):
