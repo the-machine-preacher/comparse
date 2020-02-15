@@ -73,7 +73,7 @@ class comparse:
             # Attempts to match whole words exactly. 
             for word in string.split(): 
                 if match == word: 
-                    self.message = self.message.replace(match+' ', match+'  ') # This prevents adjacent matches from 'grabbing' each other.
+                    self.message = self.message.replace(match+' ', match+'  ') # Prevents adjacent matches from 'grabbing' each other.
                     return match
             # Finds the closest match and conforms the original message to fit the attribute. Possibilities that don’t score at least 
             # 0.7 for similarity to the match are ignored.
