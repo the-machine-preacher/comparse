@@ -251,7 +251,7 @@ class comparse:
         detected_unit_float = self.parse(message, reverse=True)[unit]
 
         # Find the common, most probable value for the attribute specified.
-        union = list(set(detected_variable_int).union(detected_unit_int, detected_variable_float, detected_unit_float))
+        union = set(detected_variable_int).union(detected_unit_int, detected_variable_float, detected_unit_float)
 
         for x in union:
             if x != 0:
