@@ -127,8 +127,7 @@ class comparse:
 
         # This populates the 'temp_options' dictionary.
         for k, v in zip(args, args[1:]):
-            for item in [x.strip(' ') for x in v.split(",")]:
-                temp_options[k].append(item)  # Split elements by comma.
+            temp_options[k].extend((x.strip(' ') for x in v.split(",")))
 
         # This picks out only attributes specified in the message and populates the other,
         # unspecified attributes with default values.
