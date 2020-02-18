@@ -60,31 +60,34 @@ class comparse:
         message = re.sub(r'\s*([<>+*/-])\s*', ' \\1 ', message)
 
         # This segregates any int and float values from text within the message.
-        self.message = re.sub(r'\s*([0-9.]+)\s*', ' \\1 ', message)
+        message = re.sub(r'\s*([0-9.]+)\s*', ' \\1 ', message)
+
+        # Temporarily store the message in the self.message variable for easy retrieval by other methods.
+        self.message = message
         
         # The code below attempts to match attributes that are partially specified in the message, in many possible combinations. 
         # It also automatically corrects the main self.message variable. 
         def attribute_match(string, match):
             # Conforms the message to accomodate attributes that are single characters.
-            self.message = re.sub("r'(?<=[0-9])\s*("+match+")\s*(?=[0-9])'", ' \\1 ', self.message)
-            self.message = re.sub("r'\s*("+match+")\s*(?=[0-9])'", ' \\1 ', self.message)
-            self.message = re.sub("r'("+match+")\s*(?=[0-9])'", ' \\1 ', self.message)
+            string = re.sub("r'(?<=[0-9])\s*("+match+")\s*(?=[0-9])'", ' \\1 ', string)
+            string = re.sub("r'\s*("+match+")\s*(?=[0-9])'", ' \\1 ', string)
+            string = re.sub("r'("+match+")\s*(?=[0-9])'", ' \\1 ', string)
 
             # Attempts to match whole words exactly. 
             for word in string.split(): 
                 if match == word: 
-                    self.message = self.message.replace(match+' ', match+'  ') # Prevents adjacent matches from 'grabbing' each other.
+                    self.message = string.replace(match+' ', match+'  ') # Prevents adjacent matches from 'grabbing' each other.
                     return match
             # Finds the closest match and conforms the original message to fit the attribute. Possibilities that don’t score at least 
             # 0.7 for similarity to the match are ignored.
             if len(match) > 4: # Only activate difflib if the match string is greater than 4 characters long.
                 if difflib.get_close_matches(match, string.split(),3,0.7): 
                     # This prevents adjacent matches from 'grabbing' each other.
-                    self.message = self.message.replace(difflib.get_close_matches(match, string.split())[0]+' ', match+'  ') 
+                    self.message = string.replace(difflib.get_close_matches(match, string.split())[0]+' ', match+'  ') 
                     return match
 
         # This reverses a list and searches for values PRIOR to the attribute.
-        if self.reverse: self.message = " ".join(list(reversed(self.message.split(" "))))
+        if self.reverse: message = " ".join(list(reversed(message.split(" "))))
 
         # This returns a SET of attributes (it filters out duplicates and empty values).
         attributes = []
@@ -92,7 +95,9 @@ class comparse:
             attributes.append(attribute_match(message, attribute))
             attributes = list(set(attributes))
             attributes = self.retrieved_attributes = [x for x in attributes if x is not None]
-        message = self.message # Conforms the original message to fit the attribute.
+        
+        # Conforms the original message to fit the attribute.
+        message = self.message
 
         # Insert quotation marks after string attributes. This will ensure that the entire substring 
         # following an attribute marker is correctly parsed. # This function matches the entire attribute 
@@ -170,6 +175,10 @@ class comparse:
                     elif default=="False" or default=="false" or default=="FALSE": self.data[attribute].append(bool(0))
                     elif default is None: self.data[attribute].append(None)
                     else: self.data[attribute].append(var_type(default))
+                
+        # Reverse the order of the detected values to corresponde to the sequence of the message.
+        if self.reverse: self.data[attribute].reverse()
+        # Return the output.
         return self.data
     
     # This method shows the formatted help text. Note that the printed text may be different 
